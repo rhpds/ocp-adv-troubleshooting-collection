@@ -21,6 +21,13 @@
     - sudo mv omc_Linux_x86_64 /usr/bin/omc
     - chmod +x /usr/bin/omc
 
+- name: Download the koff tool
+  ansible.builtin.command: "{{ item }}"
+  loop:
+    - wget https://github.com/gmeghnag/koff/releases/download/v1.0.1/koff_Linux_x86_64
+    - sudo mv koff_Linux_x86_64 /usr/bin/koff
+    - chmod +x /usr/bin/koff
+
 - name: Download the oc tool
   ansible.builtin.command: "{{ item }}"
   loop:
