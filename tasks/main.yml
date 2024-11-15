@@ -31,8 +31,8 @@
 - name: Download the oc tool
   ansible.builtin.command: "{{ item }}"
   loop:
-    - wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.17.3.tar.gz
-    - tar zxvf openshift-client-linux-4.17.3.tar.gz oc
+    - wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+    - tar zxvf openshift-client-linux.tar.gz oc
     - sudo mv oc /usr/bin/oc
     - chmod +x /usr/bin/oc
 
