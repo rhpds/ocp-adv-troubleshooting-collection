@@ -46,8 +46,8 @@
 - name: Download the gron tool
   ansible.builtin.command: "{{ item }}"
   loop:
-    - go install github.com/tomnomnom/gron@latest
-    - sudo cp ~/go/bin/gron /usr/bin/gron
+    - wget https://github.com/tomnomnom/gron/releases/download/v0.7.1/gron-linux-amd64-0.7.1.tgz
+    - sudo mv gron /usr/bin/gron
     - sudo chmod +x /usr/bin/gron
 
 - name: Download the etcd-ocp-diag.py tool
