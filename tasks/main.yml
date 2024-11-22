@@ -41,7 +41,7 @@
   loop:
     - go install github.com/openshift/cluster-debug-tools/cmd/kubectl-dev_tool@90f6a55f6ddd7671db15eb82df000e57182e86ba
     - sudo cp ~/go/bin/kubectl-dev_tool /usr/bin/kubectl-dev_tool
-    - sudo chmod +x /usr/bin/kubectl-dev_tool
+    - chmod +x /usr/bin/kubectl-dev_tool
 
 - name: Download the gron tool
   ansible.builtin.command: "{{ item }}"
