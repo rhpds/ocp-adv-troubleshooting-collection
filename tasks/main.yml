@@ -64,9 +64,3 @@
     - wget https://raw.githubusercontent.com/cptmorgan-rh/ocp_insights/refs/heads/insightsarchive/ocp_insights.sh
     - sudo mv ocp_insights.sh /usr/bin/ocp_insights.sh
     - chmod +x /usr/bin/ocp_insights.sh
-- name: Unarchive module 2
-  ansible.builtin.unarchive:
-    src: /home/lab-user/Module2/module2-demo-must-gather.tgz
-    dest: /home/lab-user/Module2
-    remote_src: yes
-
