@@ -54,7 +54,7 @@
 - name: Download the etcd-ocp-diag.py tool
   ansible.builtin.command: "{{ item }}"
   loop:
-    - wget wget https://raw.githubusercontent.com/cptmorgan-rh/etcd-ocp-diag-script/refs/heads/main/etcd-ocp-diag.py
+    - wget https://raw.githubusercontent.com/cptmorgan-rh/etcd-ocp-diag-script/refs/heads/main/etcd-ocp-diag.py
     - sudo mv etcd-ocp-diag.py /usr/bin/etcd-ocp-diag.py
     - chmod +x /usr/bin/etcd-ocp-diag.py
 
