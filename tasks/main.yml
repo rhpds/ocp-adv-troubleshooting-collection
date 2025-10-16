@@ -114,6 +114,26 @@
   delay: 5
   until: download_ocp_insights_result is succeeded
 
+- name: Clone a OVS git repository
+  ansible.builtin.git:
+    repo: https://github.com/mrobson/ovs-dbg.git
+    dest: /home/lab-user/
+    version: rh1lab
+    clone: yes
+    update: yes
+  register: download_ovs_git_result
+  retries: 3
+  delay: 5
+  until: download_ovs_git_result is succeeded
+
+- name: Pull an image
+  containers.podman.podman_image:
+    name: quay.io/mrobson/ovs-offline
+  register: pull_ovs_image_result
+  retries: 3
+  delay: 5
+  until: pull_ovs_image_result is succeeded
+
 - name: Remove 50-cloud-init.conf, ssh issue
   ansible.builtin.file:
     path: /etc/ssh/sshd_config.d/50-cloud-init.conf
