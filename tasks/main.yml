@@ -1,4 +1,26 @@
 ---
+
+######################
+# begin long download
+######################
+
+- name: Download must-gather archive
+  ansible.builtin.get_url:
+    url: https://d18h2xbjo1t4w8.cloudfront.net/must_gather_lab/rh1-lab16-must-gather.zip
+    dest: /home/lab-user/rh1-lab16-must-gather.zip
+    mode: '0644'  # Set permissions for the downloaded file
+    url_username: "{{ s3_rhpds_private_username }}"  # Provide the username
+    url_password: "{{ s3_rhpds_private_password }}"  # Provide the password
+    owner: lab-user
+    group: users
+  async: 5000
+  poll: 0
+  register: async_must_gather
+
+############################################
+# do other stuff while downloading must-gather
+############################################
+
 - name: Install the latest version of wget, jq and golang
   ansible.builtin.dnf:
     name:
@@ -6,112 +28,172 @@
       - jq
       - golang
     state: latest
+  retries: 10
 
 - name: Download the yq tool
-  ansible.builtin.command: "{{ item }}"
-  loop:
-    - wget https://github.com/mikefarah/yq/releases/download/v4.47.2/yq_linux_amd64
-    - sudo mv yq_linux_amd64 /usr/bin/yq
-    - chmod +x /usr/bin/yq
+  ansible.builtin.get_url:
+    url: https://github.com/mikefarah/yq/releases/download/v4.47.2/yq_linux_amd64
+    dest: /usr/bin/yq
+    mode: '0755'  # Set executable permission immediately during download
+  register: download_result
+  retries: 3
+  delay: 5
+  until: download_result is succeeded
 
 - name: Download the omc tool
-  ansible.builtin.command: "{{ item }}"
-  loop:
-    - wget https://github.com/gmeghnag/omc/releases/download/v3.11.2/omc_Linux_x86_64
-    - sudo mv omc_Linux_x86_64 /usr/bin/omc
-    - chmod +x /usr/bin/omc
+  ansible.builtin.get_url:
+    url: https://github.com/gmeghnag/omc/releases/download/v3.11.2/omc_Linux_x86_64
+    dest: /usr/bin/omc
+    mode: '0755'
+  register: download_omc_result
+  retries: 3
+  delay: 5
+  until: download_omc_result is succeeded
 
 - name: Download the koff tool
-  ansible.builtin.command: "{{ item }}"
-  loop:
-    - wget https://github.com/gmeghnag/koff/releases/download/v1.0.1/koff_Linux_x86_64
-    - sudo mv koff_Linux_x86_64 /usr/bin/koff
-    - chmod +x /usr/bin/koff
+  ansible.builtin.get_url:
+    url: https://github.com/gmeghnag/koff/releases/download/v1.0.1/koff_Linux_x86_64
+    dest: /usr/bin/koff
+    mode: '0755'
+  register: download_koff_result
+  retries: 3
+  delay: 5
+  until: download_koff_result is succeeded
 
 - name: Download the oc tool
-  ansible.builtin.command: "{{ item }}"
-  loop:
+  ansible.builtin.get_url:
+    url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.19.13.tar.gz
+    dest: /tmp/openshift-client-linux-4.19.13.tar.gz
+  register: download_oc_result
+  retries: 3
+  delay: 5
+  until: download_oc_result is succeeded
 
-    - wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.19.13.tar.gz
-    - tar zxvf openshift-client-linux-4.19.13.tar.gz oc
-    - sudo mv oc /usr/bin/oc
-    - chmod +x /usr/bin/oc
+- name: Extract the oc tool
+  ansible.builtin.unarchive:
+    src: /tmp/openshift-client-linux-4.19.13.tar.gz
+    dest: /tmp/
+    remote_src: yes
+  when: download_oc_result is succeeded
+
+- name: Move oc binary to /usr/bin
+  ansible.builtin.command: mv /tmp/oc /usr/bin/oc
+  when: download_oc_result is succeeded
+
+- name: Set executable permissions for oc tool
+  ansible.builtin.file:
+    path: /usr/bin/oc
+    mode: '0755'
 
 - name: Download the kubectl-dev tool
-  ansible.builtin.command: "{{ item }}"
-  loop:
-    - go install github.com/openshift/cluster-debug-tools/cmd/kubectl-dev_tool@latest
-    - sudo cp /home/lab-user/go/bin/kubectl-dev_tool /usr/bin/kubectl-dev_tool
-    - sudo chmod +x /usr/bin/kubectl-dev_tool
+  ansible.builtin.command: go install github.com/openshift/cluster-debug-tools/cmd/kubectl-dev_tool@latest
+  register: download_kubectl_dev_result
+  retries: 3
+  delay: 5
+  until: download_kubectl_dev_result.rc == 0  # Check for successful termination
+
+- name: Move kubectl-dev_tool to /usr/bin
+  ansible.builtin.command: cp /home/lab-user/go/bin/kubectl-dev_tool /usr/bin/kubectl-dev_tool
+  register: move_kubectl_dev_result
+  retries: 3
+  delay: 5
+  until: move_kubectl_dev_result.rc == 0  # Check for successful termination
+
+- name: Set executable permissions for kubectl-dev_tool
+  ansible.builtin.file:
+    path: /usr/bin/kubectl-dev_tool
+    mode: '0755'
 
 - name: Download the gron tool
-  ansible.builtin.command: "{{ item }}"
-  loop:
-    - wget https://github.com/tomnomnom/gron/releases/download/v0.7.1/gron-linux-amd64-0.7.1.tgz
-    - tar zxvf gron-linux-amd64-0.7.1.tgz
-    - sudo mv gron /usr/bin/gron
-    - chmod +x /usr/bin/gron
+  ansible.builtin.get_url:
+    url: https://github.com/tomnomnom/gron/releases/download/v0.7.1/gron-linux-amd64-0.7.1.tgz
+    dest: /tmp/gron-linux-amd64-0.7.1.tgz
+  register: download_gron_result
+  retries: 3
+  delay: 5
+  until: download_gron_result is succeeded
+
+- name: Extract gron tool
+  ansible.builtin.unarchive:
+    src: /tmp/gron-linux-amd64-0.7.1.tgz
+    dest: /tmp/
+    remote_src: yes
+  when: download_gron_result is succeeded
+
+- name: Move gron binary to /usr/bin
+  ansible.builtin.command: mv /tmp/gron /usr/bin/gron
+  when: download_gron_result is succeeded
+
+- name: Set executable permissions for gron tool
+  ansible.builtin.file:
+    path: /usr/bin/gron
+    mode: '0755'
 
 - name: Download the etcd-ocp-diag.py tool
-  ansible.builtin.command: "{{ item }}"
-  loop:
-    - wget https://raw.githubusercontent.com/cptmorgan-rh/etcd-ocp-diag-script/refs/heads/main/etcd-ocp-diag.py
-    - sudo mv etcd-ocp-diag.py /usr/bin/etcd-ocp-diag.py
-    - chmod +x /usr/bin/etcd-ocp-diag.py
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/cptmorgan-rh/etcd-ocp-diag-script/refs/heads/main/etcd-ocp-diag.py
+    dest: /usr/bin/etcd-ocp-diag.py
+    mode: '0755'  # Set executable permission during download
+  register: download_etcd_diag_result
+  retries: 3
+  delay: 5
+  until: download_etcd_diag_result is succeeded
 
 - name: Download the ocp-insights tool
-  ansible.builtin.command: "{{ item }}"
-  loop:
-    - wget https://raw.githubusercontent.com/cptmorgan-rh/ocp_insights/refs/heads/insightsarchive/ocp_insights.sh
-    - sudo mv ocp_insights.sh /usr/bin/ocp_insights.sh
-    - chmod +x /usr/bin/ocp_insights.sh
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/cptmorgan-rh/ocp_insights/refs/heads/insightsarchive/ocp_insights.sh
+    dest: /usr/bin/ocp_insights.sh
+    mode: '0755'  # Set executable permission during download
+  register: download_ocp_insights_result
+  retries: 3
+  delay: 5
+  until: download_ocp_insights_result is succeeded
 
-# all this other weird stuff that's from the old one that we should translate into normal ansible, as needed
+- name: Remove 50-cloud-init.conf, ssh issue
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+    state: absent  # Remove the file
 
-# asset_injector_assets:
-#
-#   - description: Remove 50-cloud-init.conf, ssh issue
-#     type: remove
-#     path: /etc/ssh/sshd_config.d/50-cloud-init.conf
-#
-#   - description: Remove 50-redhat.conf, ssh issue
-#     type: remove
-#     path: /etc/ssh/sshd_config.d/50-redhat.conf
-#
-#   - description: Update sshd_config for password auth
-#     type: blockinfile
-#     path: /etc/ssh/sshd_config
-#     state: present
-#     marker: "# {mark} Our custom SSH settings via Ansible"
-#     block: |
-#       # Our custom SSH settings via Ansible
-#       ChallengeResponseAuthentication no
-#       PasswordAuthentication yes
-#       UsePAM yes
-#
-#   - description: Restart sshd to pick up new password support configuration
-#     type: service
-#     name: sshd
-#     state: restarted
-#
-#   - description: Download must-gather archive
-#     type: http
-#     dest: /home/lab-user/rh1-lab16-must-gather.zip
-#     src: https://d18h2xbjo1t4w8.cloudfront.net/must_gather_lab/rh1-lab16-must-gather.zip
-#     url_username: "{{ s3_rhpds_private_username }}"
-#     url_password: "{{ s3_rhpds_private_password }}"
-#     owner: lab-user
-#     group: users
-#     mode: u=rw,g=r,o=r
-#
-#   - description: Unarchive must-gather file
-#     type: unarchive
-#     src: /home/lab-user/rh1-lab16-must-gather.zip
-#     dest: /home/lab-user
-#     remote_src: true
-#
-#   - description: Change ownership of Module directories
-#     type: command
-#     cmd: 'chown -R lab-user:users /home/lab-user/'
-#
-#
+- name: Remove 50-redhat.conf, ssh issue
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/50-redhat.conf
+    state: absent  # Remove the file
+
+- name: Update sshd_config for password authentication
+  ansible.builtin.blockinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    marker: "# {mark} Our custom SSH settings via Ansible"
+    block: |
+      # Our custom SSH settings via Ansible
+      ChallengeResponseAuthentication no
+      PasswordAuthentication yes
+      UsePAM yes
+
+- name: Restart sshd to apply new configuration
+  ansible.builtin.service:
+    name: sshd
+    state: restarted
+
+######################
+# finish long download
+######################
+
+- name: Wait for async_must_gather task to complete
+  async_status:
+    jid: "{{ async_must_gather.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished  # Continue until the job is finished
+  retries: 6000               # Number of retries
+  delay: 10                   # Delay between retries
+
+- name: Unarchive must-gather file
+  ansible.builtin.unarchive:
+    src: /home/lab-user/rh1-lab16-must-gather.zip
+    dest: /home/lab-user
+    remote_src: yes  # The source file is already on the remote machine
+
+- name: Change ownership of Module directories
+  ansible.builtin.command: chown -R lab-user:users /home/lab-user/
+  args:
+    warn: false  # Suppress warnings (optional)
