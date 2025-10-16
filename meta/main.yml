@@ -1,0 +1,6 @@
+galaxy_info:
+  author: Judd Maltin
+  description: Install tools for ocp-adv-troubleshooting
+  company: Red Hat
+  license: gpl-2.0
+  min_ansible_version: '2.9'  #
