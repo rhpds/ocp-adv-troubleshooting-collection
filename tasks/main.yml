@@ -50,16 +50,6 @@
   delay: 5
   until: download_omc_result is succeeded
 
-- name: Download the koff tool
-  ansible.builtin.get_url:
-    url: https://github.com/gmeghnag/koff/releases/download/v1.0.1/koff_Linux_x86_64
-    dest: /usr/bin/koff
-    mode: '0755'
-  register: download_koff_result
-  retries: 3
-  delay: 5
-  until: download_koff_result is succeeded
-
 - name: Download the oc tool
   ansible.builtin.get_url:
     url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-4.19.13.tar.gz
@@ -104,31 +94,6 @@
     path: /usr/bin/kubectl-dev_tool
     mode: '0755'
 
-- name: Download the gron tool
-  ansible.builtin.get_url:
-    url: https://github.com/tomnomnom/gron/releases/download/v0.7.1/gron-linux-amd64-0.7.1.tgz
-    dest: /tmp/gron-linux-amd64-0.7.1.tgz
-  register: download_gron_result
-  retries: 3
-  delay: 5
-  until: download_gron_result is succeeded
-
-- name: Extract gron tool
-  ansible.builtin.unarchive:
-    src: /tmp/gron-linux-amd64-0.7.1.tgz
-    dest: /tmp/
-    remote_src: yes
-  when: download_gron_result is succeeded
-
-- name: Move gron binary to /usr/bin
-  ansible.builtin.command: mv /tmp/gron /usr/bin/gron
-  when: download_gron_result is succeeded
-
-- name: Set executable permissions for gron tool
-  ansible.builtin.file:
-    path: /usr/bin/gron
-    mode: '0755'
-
 - name: Download the etcd-ocp-diag.py tool
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/cptmorgan-rh/etcd-ocp-diag-script/refs/heads/main/etcd-ocp-diag.py
@@ -141,8 +106,8 @@
 
 - name: Download the ocp-insights tool
   ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/cptmorgan-rh/ocp_insights/refs/heads/insightsarchive/ocp_insights.sh
-    dest: /usr/bin/ocp_insights.sh
+    url: https://raw.githubusercontent.com/cptmorgan-rh/ocp_insights/refs/heads/main/ocp_insights.py
+    dest: /usr/bin/ocp_insights.py
     mode: '0755'  # Set executable permission during download
   register: download_ocp_insights_result
   retries: 3
