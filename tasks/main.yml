@@ -208,3 +208,5 @@
 
 - name: Run the ovn backup containers
   ansible.builtin.command: /home/lab-user/ovs-dbg/bin/ovs-offline -w /home/lab-user/ovs-offline start
+  become: true
+  become_user: lab-user
