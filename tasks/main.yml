@@ -175,21 +175,21 @@
 # finish long download
 ######################
 
-- name: Wait for async_must_gather task to complete
-  async_status:
-    jid: "{{ async_must_gather.ansible_job_id }}"
-  register: job_result
-  until: job_result.finished  # Continue until the job is finished
-  retries: 6000               # Number of retries
-  delay: 10                   # Delay between retries
-
-#- name: Wait for async_ovs_archive task to complete
+#- name: Wait for async_must_gather task to complete
 #  async_status:
-#    jid: "{{ async_ovs_archive.ansible_job_id }}"
+#    jid: "{{ async_must_gather.ansible_job_id }}"
 #  register: job_result
 #  until: job_result.finished  # Continue until the job is finished
 #  retries: 6000               # Number of retries
 #  delay: 10                   # Delay between retries
+
+- name: Wait for async_ovs_archive task to complete
+  async_status:
+    jid: "{{ async_ovs_archive.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished  # Continue until the job is finished
+  retries: 6000               # Number of retries
+  delay: 10                   # Delay between retries
 
 #- name: Unarchive must-gather file
 #  ansible.builtin.unarchive:
