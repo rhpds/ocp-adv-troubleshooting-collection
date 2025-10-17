@@ -205,10 +205,6 @@
 
 - name: Change ownership of Module directories
   ansible.builtin.command: chown -R lab-user:users /home/lab-user/
-  args:
-    warn: false  # Suppress warnings (optional)
 
 - name: Run the ovn backup containers
   ansible.builtin.command: /home/lab-user/ovs-dbg/bin/ovs-offline -w /home/lab-user/ovs-offline start
-  args:
-    warn: false  # Suppress warnings (optional)
