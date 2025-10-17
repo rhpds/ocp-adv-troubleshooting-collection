@@ -76,23 +76,11 @@
     mode: '0755'
 
 - name: Download the kubectl-dev tool
-  ansible.builtin.command: go install github.com/openshift/cluster-debug-tools/cmd/kubectl-dev_tool@latest
-  register: download_kubectl_dev_result
-  retries: 3
-  delay: 5
-  until: download_kubectl_dev_result.rc == 0  # Check for successful termination
-
-- name: Move kubectl-dev_tool to /usr/bin
-  ansible.builtin.command: cp /home/lab-user/go/bin/kubectl-dev_tool /usr/bin/kubectl-dev_tool
-  register: move_kubectl_dev_result
-  retries: 3
-  delay: 5
-  until: move_kubectl_dev_result.rc == 0  # Check for successful termination
-
-- name: Set executable permissions for kubectl-dev_tool
-  ansible.builtin.file:
-    path: /usr/bin/kubectl-dev_tool
-    mode: '0755'
+  ansible.builtin.command: "{{ item }}"
+  loop:
+    - go install github.com/openshift/cluster-debug-tools/cmd/kubectl-dev_tool@latest
+    - sudo cp ~/go/bin/kubectl-dev_tool /usr/bin/kubectl-dev_tool
+    - chmod +x /usr/bin/kubectl-dev_tool
 
 - name: Download the etcd-ocp-diag.py tool
   ansible.builtin.get_url:
