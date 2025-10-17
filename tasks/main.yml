@@ -120,6 +120,8 @@
     version: rh1lab
     clone: yes
     update: yes
+  become: true
+  become_user: lab-user
   register: download_ovs_git_result
   retries: 3
   delay: 5
@@ -128,10 +130,20 @@
 - name: Pull an image
   containers.podman.podman_image:
     name: quay.io/mrobson/ovs-offline
+  become: true
+  become_user: lab-user
   register: pull_ovs_image_result
   retries: 3
   delay: 5
   until: pull_ovs_image_result is succeeded
+
+- name: Tag image
+  containers.podman.podman_tag:
+    image: quay.io/mrobson/ovs-offline
+    target_names:
+      - ovs-offline
+  become: true
+  become_user: lab-user
 
 - name: Remove 50-cloud-init.conf, ssh issue
   ansible.builtin.file:
