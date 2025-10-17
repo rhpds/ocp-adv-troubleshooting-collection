@@ -17,6 +17,17 @@
   poll: 0
   register: async_must_gather
 
+- name: Download ovs archive
+  ansible.builtin.get_url:
+    url: https://github.com/mrobson/network-policy-demo/raw/refs/heads/rh1lab/ovs-dump/ovs-offline-oct16.tgz
+    dest: /home/lab-user/ovs-offline-oct16.tgz
+    mode: '0644'  # Set permissions for the downloaded file
+    owner: lab-user
+    group: users
+  async: 5000
+  poll: 0
+  register: async_ovs_archive
+
 ############################################
 # do other stuff while downloading must-gather
 ############################################
@@ -105,7 +116,7 @@
 - name: Clone a OVS git repository
   ansible.builtin.git:
     repo: https://github.com/mrobson/ovs-dbg.git
-    dest: /home/lab-user/
+    dest: /home/lab-user/ovs-dbg
     version: rh1lab
     clone: yes
     update: yes
@@ -160,9 +171,23 @@
   retries: 6000               # Number of retries
   delay: 10                   # Delay between retries
 
+- name: Wait for async_ovs_archive task to complete
+  async_status:
+    jid: "{{ async_ovs_archive.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished  # Continue until the job is finished
+  retries: 6000               # Number of retries
+  delay: 10                   # Delay between retries
+
 - name: Unarchive must-gather file
   ansible.builtin.unarchive:
     src: /home/lab-user/rh1-lab16-must-gather.zip
+    dest: /home/lab-user
+    remote_src: yes  # The source file is already on the remote machine
+
+- name: Unarchive ovs archive
+  ansible.builtin.unarchive:
+    src: /home/lab-user/ovs-offline-oct16.tgz
     dest: /home/lab-user
     remote_src: yes  # The source file is already on the remote machine
 
