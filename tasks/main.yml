@@ -19,7 +19,7 @@
 
 - name: Download ovs archive
   ansible.builtin.get_url:
-    url: https://github.com/mrobson/network-policy-demo/raw/refs/heads/rh1lab/ovs-dump/ovs-offline-oct16.tgz
+    url: https://github.com/mrobson/network-policy-demo/raw/refs/heads/rh1lab/ovs-dump/ovs-offline-nov11.tgz
     dest: /home/lab-user/ovs-offline-oct16.tgz
     mode: '0644'  # Set permissions for the downloaded file
     owner: lab-user
