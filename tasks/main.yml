@@ -46,7 +46,7 @@
   ansible.builtin.file:
     path: /home/lab-user/ModuleOVN
     state: directory
-    mode: '0644'
+    mode: '0755'
     owner: lab-user
     group: users
 
