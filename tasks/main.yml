@@ -17,10 +17,20 @@
 #  poll: 0
 #  register: async_must_gather
 
+- name: Enable and start the tmp mount service
+  ansible.builtin.systemd_service:
+    name: tmp.mount
+    state: started
+    enabled: true
+    daemon_reload: false
+  become: true
+  register: tmp_mount_result
+  until: tmp_mount_result is succeeded
+
 - name: Download ovs archive
   ansible.builtin.get_url:
     url: https://github.com/mrobson/network-policy-demo/raw/refs/heads/rh1lab/ovs-dump/ovs-offline-nov11.tgz
-    dest: /home/lab-user/ovs-offline-oct16.tgz
+    dest: /home/lab-user/ModuleOVN/ovs-offline-nov11.tgz
     mode: '0644'  # Set permissions for the downloaded file
     owner: lab-user
     group: users
@@ -31,6 +41,14 @@
 ############################################
 # do other stuff while downloading must-gather
 ############################################
+
+- name: Create ModuleOVN directory if it does not exist
+  ansible.builtin.file:
+    path: /home/lab-user/ModuleOVN
+    state: directory
+    mode: '0644'
+    owner: lab-user
+    group: users
 
 - name: Install the latest version of wget, jq and golang
   ansible.builtin.dnf:
@@ -116,7 +134,7 @@
 - name: Clone a OVS git repository
   ansible.builtin.git:
     repo: https://github.com/mrobson/ovs-dbg.git
-    dest: /home/lab-user/ovs-dbg
+    dest: /home/lab-user/ModuleOVN/ovs-dbg
     version: rh1lab
     clone: yes
     update: yes
@@ -199,8 +217,8 @@
 
 - name: Unarchive ovs archive
   ansible.builtin.unarchive:
-    src: /home/lab-user/ovs-offline-oct16.tgz
-    dest: /home/lab-user
+    src: /home/lab-user/ModuleOVN/ovs-offline-nov11.tgz
+    dest: /home/lab-user/ModuleOVN
     remote_src: yes  # The source file is already on the remote machine
 
 - name: Change ownership of Module directories
