@@ -6,16 +6,17 @@
 
 - name: Set fact of must_gather_filename
   set_fact:
-    #must_gather_filename: "rh1-lb1034-modules.tgz"
-    must_gather_filename: "rh1-lab16-must-gather.zip"
+    must_gather_filename: "rh1-lb1034-modules.tgz"
 
 - name: Download must-gather archive
   ansible.builtin.get_url:
-    url: https://d18h2xbjo1t4w8.cloudfront.net/must_gather_lab/{{ must_gather_filename }}
-    dest: /home/lab-user/{{ must_gather_filename }}
+    url: "https://d18h2xbjo1t4w8.cloudfront.net/must_gather_lab/{{ must_gather_filename }}"
+    dest: "/home/lab-user/{{ must_gather_filename }}"
     mode: '0644'  # Set permissions for the downloaded file
     url_username: "{{ s3_rhpds_private_username }}"  # Provide the username
     url_password: "{{ s3_rhpds_private_password }}"  # Provide the password
+    force_basic_auth: true
+    #force: true # ignore cached copy
     owner: lab-user
     group: users
   async: 5000
