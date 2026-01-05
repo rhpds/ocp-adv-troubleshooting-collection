@@ -220,12 +220,14 @@
     src: /home/lab-user/{{ must_gather_filename }}
     dest: /home/lab-user
     remote_src: yes  # The source file is already on the remote machine
+  register: main_must_gather_extract
 
 - name: Extract Module2 must-gather archive
   ansible.builtin.unarchive:
     src: /home/lab-user/Module2/module2-demo-must-gather.tar.gz
     dest: /home/lab-user/Module2
     remote_src: yes
+  when: main_must_gather_extract is succeeded
 
 - name: Find nested must-gather archives in Module4 Cluster folders
   ansible.builtin.find:
@@ -233,6 +235,7 @@
     patterns: "must-gather.local.tar.gz"
     recurse: yes
   register: nested_must_gather_archives
+  when: main_must_gather_extract is succeeded
 
 - name: Extract nested must-gather archives
   ansible.builtin.unarchive:
@@ -240,7 +243,9 @@
     dest: "{{ item.path | dirname }}"
     remote_src: yes
   loop: "{{ nested_must_gather_archives.files }}"
-  when: nested_must_gather_archives.files | length > 0
+  when:
+    - main_must_gather_extract is succeeded
+    - nested_must_gather_archives.files | length > 0
 
 - name: Unarchive ovs archive
   ansible.builtin.unarchive:
