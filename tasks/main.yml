@@ -247,6 +247,13 @@
     - main_must_gather_extract is succeeded
     - nested_must_gather_archives.files | length > 0
 
+- name: Extract Module5 must-gather archive
+  ansible.builtin.unarchive:
+    src: /home/lab-user/Module5/module5-must-gather-audit-log.tgz
+    dest: /home/lab-user/Module5
+    remote_src: yes
+  when: main_must_gather_extract is succeeded
+
 - name: Unarchive ovs archive
   ansible.builtin.unarchive:
     src: /home/lab-user/ModuleOVN/ovs-offline-nov11.tgz
