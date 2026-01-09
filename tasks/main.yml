@@ -39,7 +39,7 @@
     state: directory
     mode: '0755'
     owner: lab-user
-    group: usersf
+    group: users
 
 ############################################
 # do other stuff while downloading must-gather
