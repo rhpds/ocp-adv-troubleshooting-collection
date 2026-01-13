@@ -158,6 +158,15 @@
   become: true
   become_user: lab-user
 
+- name: Set GO Vars
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    line: '{{ item }}'
+    become: true
+  with_items:
+    - 'GOMEMLIMIT=10GiB'
+    - 'GOGC=150'
+
 - name: Remove 50-cloud-init.conf, ssh issue
   ansible.builtin.file:
     path: /etc/ssh/sshd_config.d/50-cloud-init.conf
@@ -237,7 +246,7 @@
 
 - name: Unarchive ovs archive
   ansible.builtin.unarchive:
-    src: /home/lab-user/ModuleOVN/ovs-offline-dec29.tgz
+    src: /home/lab-user/ModuleOVN/ovs-offline.tgz
     dest: /home/lab-user/ModuleOVN
     remote_src: yes  # The source file is already on the remote machine
 
