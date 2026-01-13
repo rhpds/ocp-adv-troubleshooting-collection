@@ -246,7 +246,7 @@
 
 - name: Unarchive ovs archive
   ansible.builtin.unarchive:
-    src: /home/lab-user/ModuleOVN/ovs-offline-dec29.tgz
+    src: /home/lab-user/ModuleOVN/ovs-offline.tgz
     dest: /home/lab-user/ModuleOVN
     remote_src: yes  # The source file is already on the remote machine
 
