@@ -249,6 +249,7 @@
     src: /home/lab-user/ModuleOVN/ovs-offline.tgz
     dest: /home/lab-user/ModuleOVN
     remote_src: yes  # The source file is already on the remote machine
+  when: main_must_gather_extract is succeeded
 
 - name: Change ownership of Module directories
   ansible.builtin.command: chown -R lab-user:users /home/lab-user/
