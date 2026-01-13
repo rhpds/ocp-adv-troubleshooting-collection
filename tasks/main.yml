@@ -6,7 +6,7 @@
 
 - name: Set fact of must_gather_filename
   set_fact:
-    must_gather_filename: "rh1-lb1034-modules.tgz"
+    must_gather_filename: "rh1-lb1034-modules-mg.tgz"
 
 - name: Download must-gather archive
   ansible.builtin.get_url:
