@@ -162,7 +162,7 @@
   ansible.builtin.lineinfile:
     path: /etc/environment
     line: '{{ item }}'
-    become: true
+  become: true
   with_items:
     - 'GOMEMLIMIT=10GiB'
     - 'GOGC=150'
