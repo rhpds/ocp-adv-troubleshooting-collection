@@ -4,6 +4,16 @@
 # begin long download
 ######################
 
+- name: Enable and start the tmp mount service
+  ansible.builtin.systemd_service:
+    name: tmp.mount
+    state: started
+    enabled: true
+    daemon_reload: false
+  become: true
+  register: tmp_mount_result
+  until: tmp_mount_result is succeeded
+
 - name: Set fact of must_gather_filename
   set_fact:
     must_gather_filename: "rh1-lb1034-modules-mg.tgz"
@@ -22,16 +32,6 @@
   async: 7200
   poll: 0
   register: async_must_gather
-
-- name: Enable and start the tmp mount service
-  ansible.builtin.systemd_service:
-    name: tmp.mount
-    state: started
-    enabled: true
-    daemon_reload: false
-  become: true
-  register: tmp_mount_result
-  until: tmp_mount_result is succeeded
 
 - name: Create ModuleOVN directory if it does not exist
   ansible.builtin.file:
