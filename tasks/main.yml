@@ -19,7 +19,7 @@
     #force: true # ignore cached copy
     owner: lab-user
     group: users
-  async: 5000
+  async: 7200
   poll: 0
   register: async_must_gather
 
