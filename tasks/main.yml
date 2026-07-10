@@ -189,9 +189,14 @@
       UsePAM yes
 
 - name: Restart sshd to apply new configuration
-  ansible.builtin.service:
-    name: sshd
-    state: restarted
+  ansible.builtin.shell: sleep 2 && systemctl restart sshd
+  async: 60
+  poll: 0
+
+- name: Wait for SSH to come back after sshd restart
+  ansible.builtin.wait_for_connection:
+    delay: 5
+    timeout: 120
 
 ######################
 # finish long download
